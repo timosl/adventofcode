@@ -14,14 +14,14 @@ fn main() {
     let input = read_to_string("input.txt").expect("The input file is missing!");
     let rounds = get_game_rounds_from_file(&input);
     let results = rounds.iter()
-        .map(|x| determine_result_for_round(x))
+        .map(determine_result_for_round)
         .collect::<Vec<i32>>();
     let total_score: i32 = results.iter().sum();
     println!("The total regular score is: {total_score}");
 
     let perfect_rounds = get_perfect_game_rounds_from_file(&input);
     let perfect_results = perfect_rounds.iter()
-        .map(|x| convert_perfect_round_to_normal_round(x))
+        .map(convert_perfect_round_to_normal_round)
         .map(|x| determine_result_for_round(&x))
         .collect::<Vec<i32>>();
     let total_perfect_score: i32 = perfect_results.iter().sum();
@@ -36,17 +36,23 @@ struct GameRound {
 
 #[derive(Clone, Copy)]
 enum EnemyMove {
-    ROCK,PAPER,SCISSORS
+    Rock,
+    Paper,
+    Scissors
 }
 
 #[derive(Clone, Copy)]
 enum AllyMove {
-    ROCK,PAPER,SCISSORS
+    Rock,
+    Paper,
+    Scissors
 }
 
 #[derive(Clone, Copy)]
 enum RequiredOutcome {
-    LOSE,DRAW,WIN
+    Lose,
+    Draw,
+    Win
 }
 
 #[derive(Clone, Copy)]
@@ -55,22 +61,22 @@ struct PerfectGameRound {
     required_outcome: RequiredOutcome
 }
 
-fn get_game_rounds_from_file(file: &String) -> Vec<GameRound> {
+fn get_game_rounds_from_file(file: &str) -> Vec<GameRound> {
     let mut results: Vec<GameRound> = Vec::new();
     for line in file.lines() {
-        let enemy = line.chars().nth(0).expect("The input file appears to be broken");
+        let enemy = line.chars().next().expect("The input file appears to be broken");
         let ally = line.chars().nth(2).expect("The input file appears to be broken");
 
         let enemy_move = match enemy {
-            'A' => EnemyMove::ROCK,
-            'B' => EnemyMove::PAPER,
-            'C' => EnemyMove::SCISSORS,
+            'A' => EnemyMove::Rock,
+            'B' => EnemyMove::Paper,
+            'C' => EnemyMove::Scissors,
             _ => panic!("The input file appears to be broken")
         };
         let ally_move = match ally {
-            'X' => AllyMove::ROCK,
-            'Y' => AllyMove::PAPER,
-            'Z' => AllyMove::SCISSORS,
+            'X' => AllyMove::Rock,
+            'Y' => AllyMove::Paper,
+            'Z' => AllyMove::Scissors,
             _ => panic!("The input file appears to be broken")
         };
         results.push(GameRound {
@@ -78,45 +84,45 @@ fn get_game_rounds_from_file(file: &String) -> Vec<GameRound> {
             ally_move
         })
     }
-    return results;
+    results
 }
 
 fn determine_result_for_round(round: &GameRound) -> i32 {
-    return match round.enemy_move {
-        EnemyMove::ROCK => match round.ally_move {
-            AllyMove::ROCK => MOVE_VALUE_ROCK + RESULT_VALUE_DRAW,
-            AllyMove::PAPER => MOVE_VALUE_PAPER + RESULT_VALUE_WIN,
-            AllyMove::SCISSORS => MOVE_VALUE_SCISSORS + RESULT_VALUE_LOSE
+    match round.enemy_move {
+        EnemyMove::Rock => match round.ally_move {
+            AllyMove::Rock => MOVE_VALUE_ROCK + RESULT_VALUE_DRAW,
+            AllyMove::Paper => MOVE_VALUE_PAPER + RESULT_VALUE_WIN,
+            AllyMove::Scissors => MOVE_VALUE_SCISSORS + RESULT_VALUE_LOSE
         },
-        EnemyMove::PAPER => match round.ally_move {
-            AllyMove::ROCK => MOVE_VALUE_ROCK + RESULT_VALUE_LOSE,
-            AllyMove::PAPER => MOVE_VALUE_PAPER + RESULT_VALUE_DRAW,
-            AllyMove::SCISSORS => MOVE_VALUE_SCISSORS + RESULT_VALUE_WIN
+        EnemyMove::Paper => match round.ally_move {
+            AllyMove::Rock => MOVE_VALUE_ROCK + RESULT_VALUE_LOSE,
+            AllyMove::Paper => MOVE_VALUE_PAPER + RESULT_VALUE_DRAW,
+            AllyMove::Scissors => MOVE_VALUE_SCISSORS + RESULT_VALUE_WIN
         },
-        EnemyMove::SCISSORS => match round.ally_move {
-            AllyMove::ROCK => MOVE_VALUE_ROCK + RESULT_VALUE_WIN,
-            AllyMove::PAPER => MOVE_VALUE_PAPER + RESULT_VALUE_LOSE,
-            AllyMove::SCISSORS => MOVE_VALUE_SCISSORS + RESULT_VALUE_DRAW
+        EnemyMove::Scissors => match round.ally_move {
+            AllyMove::Rock => MOVE_VALUE_ROCK + RESULT_VALUE_WIN,
+            AllyMove::Paper => MOVE_VALUE_PAPER + RESULT_VALUE_LOSE,
+            AllyMove::Scissors => MOVE_VALUE_SCISSORS + RESULT_VALUE_DRAW
         }
     }
 }
 
-fn get_perfect_game_rounds_from_file(file: &String) -> Vec<PerfectGameRound> {
+fn get_perfect_game_rounds_from_file(file: &str) -> Vec<PerfectGameRound> {
     let mut results: Vec<PerfectGameRound> = Vec::new();
     for line in file.lines() {
-        let enemy = line.chars().nth(0).expect("The input file appears to be broken");
+        let enemy = line.chars().next().expect("The input file appears to be broken");
         let outcome = line.chars().nth(2).expect("The input file appears to be broken");
 
         let enemy_move = match enemy {
-            'A' => EnemyMove::ROCK,
-            'B' => EnemyMove::PAPER,
-            'C' => EnemyMove::SCISSORS,
+            'A' => EnemyMove::Rock,
+            'B' => EnemyMove::Paper,
+            'C' => EnemyMove::Scissors,
             _ => panic!("The input file appears to be broken")
         };
         let required_outcome = match outcome {
-            'X' => RequiredOutcome::LOSE,
-            'Y' => RequiredOutcome::DRAW,
-            'Z' => RequiredOutcome::WIN,
+            'X' => RequiredOutcome::Lose,
+            'Y' => RequiredOutcome::Draw,
+            'Z' => RequiredOutcome::Win,
             _ => panic!("The input file appears to be broken")
         };
         results.push(PerfectGameRound {
@@ -124,32 +130,32 @@ fn get_perfect_game_rounds_from_file(file: &String) -> Vec<PerfectGameRound> {
             required_outcome
         })
     }
-    return results;
+    results
 }
 
 fn determine_ally_move_for_outcome(round: &PerfectGameRound) -> AllyMove {
-    return match round.enemy_move {
-        EnemyMove::ROCK => match round.required_outcome {
-            RequiredOutcome::LOSE => AllyMove::SCISSORS,
-            RequiredOutcome::DRAW => AllyMove::ROCK,
-            RequiredOutcome::WIN => AllyMove::PAPER
+    match round.enemy_move {
+        EnemyMove::Rock => match round.required_outcome {
+            RequiredOutcome::Lose => AllyMove::Scissors,
+            RequiredOutcome::Draw => AllyMove::Rock,
+            RequiredOutcome::Win => AllyMove::Paper
         },
-        EnemyMove::PAPER => match round.required_outcome {
-            RequiredOutcome::LOSE => AllyMove::ROCK,
-            RequiredOutcome::DRAW => AllyMove::PAPER,
-            RequiredOutcome::WIN => AllyMove::SCISSORS
+        EnemyMove::Paper => match round.required_outcome {
+            RequiredOutcome::Lose => AllyMove::Rock,
+            RequiredOutcome::Draw => AllyMove::Paper,
+            RequiredOutcome::Win => AllyMove::Scissors
         },
-        EnemyMove::SCISSORS => match round.required_outcome {
-            RequiredOutcome::LOSE => AllyMove::PAPER,
-            RequiredOutcome::DRAW => AllyMove::SCISSORS,
-            RequiredOutcome::WIN => AllyMove::ROCK
+        EnemyMove::Scissors => match round.required_outcome {
+            RequiredOutcome::Lose => AllyMove::Paper,
+            RequiredOutcome::Draw => AllyMove::Scissors,
+            RequiredOutcome::Win => AllyMove::Rock
         }
     }
 }
 
 fn convert_perfect_round_to_normal_round(round: &PerfectGameRound) -> GameRound {
-    return GameRound {
+    GameRound {
         enemy_move: round.enemy_move,
-        ally_move: determine_ally_move_for_outcome(&round)
+        ally_move: determine_ally_move_for_outcome(round)
     }
 }
